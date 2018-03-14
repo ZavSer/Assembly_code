@@ -1,0 +1,49 @@
+#include <mechbotShield.h>
+#include <avr/io.h>
+#define t_straight 50
+#define t_left 50
+#define t_right 50
+#define s_forward 500
+#define s_back -300
+int main(void){
+ 
+  initSoftSerial();
+  initMotor(); 
+  initADC();
+ setLCDBackLight(200);
+
+  while (1){
+
+
+ uint16_t line_1= analog(0);
+      uint16_t line_2= analog(1);
+      uint16_t line_3= analog(2);
+      uint16_t line_4 = analog(3);
+      
+clrLCD();
+if((line_2>=800 )&&(line_3>= 800)){
+    motor(s_forward,s_forward);
+    delay_ms(t_straight);
+    lcdPrint("Forward");
+   
+    
+  }
+ 
+ if(line_4>= 650){
+    motor(s_forward,s_back);
+    delay_ms(t_right);
+    lcdPrint("right");
+     
+  }
+
+    
+ if  (line_1>=650){
+    motor(s_back,s_forward);
+    delay_ms(t_left);}
+   lcdPrint("Left");
+    
+    
+  }
+  } 
+    
+//    
