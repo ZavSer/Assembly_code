@@ -1,0 +1,101 @@
+#include <avr/io.h>
+#include "assembly_loop.h"
+
+
+.global push_button_init
+push_button_init:
+cbi 0x0A,3;             set direct of eacb I/O pin
+sbi 0x0B,3;            Step 1.5 to activate internal resistor
+
+cbi 0x0A,4;             set direct of eacb I/O pin
+sbi 0x0B,4;            Step 1.5 to activate internal resistor
+
+cbi 0x0A,5;             set direct of eacb I/O pin
+sbi 0x0B,5;            Step 1.5 to activate internal resistor
+
+cbi 0x07,1;             set direct of eacb I/O pin
+sbi 0x08,1;            Step 1.5 to activate internal resistor
+
+;Initilize LED, turn of all LEDs 
+.global led_init
+led_init:
+ldi r16,0b11111111
+out 0x04,r16;      set I/O B pin0~5 as output direction
+ldi r16,0b11000000
+out 0x0A,r16;      set I/O D pin6~7 as output direction
+
+ldi r16,0b00000000
+out 0x05,r16;      
+cbi 0x0B,6;      
+ret
+
+.global push_button_1
+push_button_1:
+ 
+
+START:      
+check_button_1:     in r16,0x09
+                    ANDI r16,0b00001000
+                    CPI r16,0b00001000
+                    brne button_1_pushed
+                    cbi 0x05,1
+                           
+check_button_2:     in r16,0x09
+                    ANDI r16,0b00010000
+                    CPI r16,0b00010000
+                    brne button_2_pushed
+                    cbi 0x05,2
+
+check_button_3:     in r16,0x09
+                    ANDI r16,0b00100000
+                    CPI r16,0b00100000
+                    brne button_3_pushed
+                    cbi 0x05,3
+             
+check_button_4:     in r16,0x06
+                    ANDI r16,0b00000010
+                    CPI r16, 0b00000010
+                    brne button_4_pushed
+                    cbi 0x05,4
+               
+end:                JMP START
+
+button_1_pushed:    sbi 0x05,1
+                    call Time_interval
+                    cbi 0x05,1
+                    call Time_interval
+                    jmp end
+button_2_pushed:    sbi 0x05,2
+                    call Time_interval
+                    cbi 0x05,2
+                    call Time_interval
+                    jmp end
+button_3_pushed:    sbi 0x05,3
+                    call Time_interval
+                    cbi 0x05,3
+                    call Time_interval
+                    jmp end
+     
+ 
+button_4_pushed:    sbi 0x05,4
+                    call Time_interval
+                    cbi 0x05,4
+                    call Time_interval
+                    jmp end
+                    
+Time_interval:      ldi r16, 21
+Time_interval_loop: call Delay
+                    subi r16,1
+                    brne Time_interval_loop
+                    ret
+                  
+Delay:              ldi r27,0xff
+                    ldi r26,0xff
+Delay_loop:         nop
+                    nop 
+                    sbiw r26,1
+                    brne Delay_loop
+                    ret
+
+
+
